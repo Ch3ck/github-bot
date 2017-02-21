@@ -1,6 +1,7 @@
 //Filename: Main.go
 //Author: Nyah Check
 //Purpose: GitHub Bot to increase following and print following list.
+//Token: 91b804cf541f1e923004b11e95af94249192b54c
 //Licence: GNU PL 2017
 
 
@@ -71,7 +72,7 @@ func init() {
 	}
 
 	if token == "" {
-		usageAndExit("GitHub token cannot be empty.", 1)
+		token = "91b804cf541f1e923004b11e95af94249192b54c"
 	}
 }
 
@@ -121,7 +122,7 @@ func main() {
 	logrus.Infof("Commands: G - Get Followers, I - Follow Users , F - Get Following, U - Unfollow Users, Q - Quit")
 	
 	fmt.Printf("\nEnter Command: ")
-	_, e := fmt.Scanf(" %c", &kmd)
+	_, e := fmt.Scanf(" %s", &kmd)
 	if err != nil {
 	    logrus.Fatal(e)
 	}
