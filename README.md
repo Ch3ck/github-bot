@@ -1,2 +1,24 @@
 # github-bot
-GitHub bot to print user following and Increase followers
+GitHub-Bot <img src="http://i.imgur.com/Cj4rMrS.gif" height="40" alt="Swimming Octocat" title="GH-Bot">
+==========
+GitHub-Bot was created and maintained by [Nyah Check](https://github.com/Ch3ck), and it's at GitHub bot to print the Following of any GitHub user. It can also increases the following by copying any Given user's following list and while authenticating with the GitHub API followers users based on that list. It uses the [Go-GitHub](github.com/google/go-github/github) library to authenticate with the GitHub API and was inspired by [Jessica Frazelle](https://github.com/jessfraz).
+
+## Installation
+
+## Usage
+```
+$ github-bot -h
+github-bot - v1.0
+  -d    run in debug mode
+  -seconds int
+        seconds to wait before checking for new events (default 30)
+  -token string
+        GitHub API token
+  -v    print version and exit (shorthand)
+  -version
+        print version and exit
+```
+
+## License
+
+GitHub-Bot is licensed under [The GNU GPL License (GNU)](LICENSE).
