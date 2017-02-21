@@ -28,9 +28,9 @@ import (
 
 const (
 	// LOGGER is what is printed for help/info output
-	LOGGER = "GHBot - %s\n"
+	LOGGER = "github-bot - %s\n"
 	// VERSION is the binary version.
-	VERSION = "v0.1.0"
+	VERSION = "v1.0"
 )
 
 var (
@@ -81,15 +81,10 @@ func init() {
 	}
 }
 
-//fchecks panic in file.
-func fcheck(e error) {
-    if e != nil {
-        panic(e)
-    }
-}
 
 func main() {
 	var ticker *time.Ticker
+	var kmd, usr string
 	
 	// On ^C, or SIGTERM handle exit.
 	c := make(chan os.Signal, 1)
@@ -111,7 +106,6 @@ func main() {
 
 	// Create the github client.
 	client := github.NewClient(tc)
-	gt := github.NewClient(nil)//client for GitHub user whose following list will be used.
 	
 
 	// Get the authenticated user, the empty string being passed let's the GitHub
@@ -130,32 +124,72 @@ func main() {
 	ticker = time.NewTicker(dur)
 
 	logrus.Infof("Bot started for user %s.", username)
-
-	for range ticker.C {
-		page := 1
-		perPage := 30
-		if err := getFollowing(client, username, page, perPage); err != nil {
-			logrus.Fatal(err)
-		}
-		
-		if err = getFollowers(client, username, page, perPage); err != nil {
-		    logrus.Fatal(err)
-		}
-		
-		if err := followUsers(client, username, page, perPage); err != nil {
-		    logrus.Fatal(err)
-		}
+	logrus.Infof("Commands: G - Get Followers, I - Follow Users , F - Get Following, U - Unfollow Users, Q - Quit")
+	
+	fmt.Printf("\nEnter Command: ")
+	_, e := fmt.Scanf(" %c", &kmd)
+	if err != nil {
+	    logrus.Fatal(e)
 	}
+	
+	switch(kmd) {
+
+        case "G": case "g":
+        for range ticker.C {
+		    page := 1
+		    perPage := 30
+		    if err = getFollowers(client, username, page, perPage); err != nil {
+		        logrus.Fatal(err)
+		    }
+		
+	    }
+	    break
+	    
+	    case "C": case "c":
+	    for range ticker.C {
+		    page := 1
+		    perPage := 30
+		    if err = getFollowing(client, username, page, perPage); err != nil {
+		        logrus.Fatal(err)
+		    }
+		
+	    }
+	    break
     
-    /**
-     * This part will be tested and worked on later.
-     */
-    for range ticker.C {
-        page := 1
-        perPage := 30
-        if err := Unfollow(client, username, page, perPage); err := nil {
-            logrus.Fatal(err)
+        case "I": case "i":
+        fmt.Printf("\nEnter username(Whose following you wish to follow): ")
+	    _, e := fmt.Scanf(" %c", &usr)
+	    if e != nil {
+	        logrus.Fatal(e)
+	    }
+	    for range ticker.C {
+		    page := 1
+		    perPage := 30
+		    if err = followUsersgetFollowers(client, username, page, perPage); err != nil {
+		        logrus.Fatal(err)
+		    }
+		
+	    }
+	    break
+	    
+	    case "U": case "u":
+        for range ticker.C {
+            page := 1
+            perPage := 30
+            if err := Unfollow(client, username, page, perPage); err := nil {
+                logrus.Fatal(err)
+            }
         }
+        break
+        
+        case "Q": case "q":
+            fmt.Printf("\n Exit successful.\n")
+            os.Exit(1)
+        break
+        
+        default:
+            fmt.Printf("\nInvalid Command.\n")
+            os.Exit(1)
     }
 }
 
