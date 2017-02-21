@@ -81,7 +81,7 @@ func init() {
 
 
 func main() {
-	usr := "augusshire"
+	usr := "unicodeveloper"
 	var ticker *time.Ticker
 	// On ^C, or SIGTERM handle exit.
 	c := make(chan os.Signal, 1)
@@ -121,13 +121,12 @@ func main() {
 	ticker = time.NewTicker(dur)
 
 	logrus.Infof("Bot started for user %s.", username)
-	getFollowing(client, username)
-	getFollowers(client, username)
+	//getFollowing(client, username) //This parts work well
+	//getFollowers(client, username)
 	
 	for range ticker.C {
-		page := 1
-		perPage := 30
-		if err := followUsers(client, usr, page, perPage); err != nil {
+		
+		if err := followUsers(client, usr); err != nil {
 			logrus.Fatal(err)
 		}
 	}
@@ -200,34 +199,24 @@ func getFollowing(client *github.Client, username string) error {
 
 // followUsers, gets the list of followers for a particular user and followers them on GitHub.
 // This requires authentication with the API.
-func followUsers(client *github.Client, username string, page, perPage int) error {
+func followUsers(client *github.Client, username string) error {
 
-    opt := &github.ListOptions{
-			    Page:    page,
-			    PerPage: perPage,
-	        }
-    usrs, resp, err := client.Users.ListFollowing(username, opt) //to test properly whether to parse resp instead inloop
+    //client.Users.Follow(username) //first of all follow this user.
+    usrs, _, err := client.Users.ListFollowers(username, nil) //to test properly whether to parse resp instead inloop
 	if err != nil {
 		return err
 	}
+	
+	fmt.Printf("\nAre we here yet.....\n\n")
+	logrus.Infof("%s has %+v followers",username, len(usrs))
 
 	for _, usr := range usrs {
 		//Follow user
-		res, e := client.Users.Follow(*usr.Login)
-        if err != nil {
-            panic(e.Error())
-        }
-        
+		res, _ := client.Users.Follow(*usr.Login)
         fmt.Printf("%+v", res)
 	}
 
-	// Return early if we are on the last page.
-	if page == resp.LastPage || resp.NextPage == 0 {
-		return nil
-	}
-
-	page = resp.NextPage
-	return followUsers(client, username, page, perPage)
+	return nil
 }
 
 
