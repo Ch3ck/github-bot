@@ -14,7 +14,6 @@ build:
 	@go build -tags "$(BUILDTAGS) cgo" .
 	@docker build -t github-bot .
 	@docker build -t ch3ck/github_bot:v1 .
-    @docker tag github_bot:latest ch3ck/github_bot:v1
 
 static:
 	@echo "+ $@"
