@@ -197,7 +197,6 @@ func getFollowers(client *github.Client, username string, page, perPage int) err
 	opt := &github.ListOptions{
 			Page:    page,
 			PerPage: perPage,
-		},
 	}
 	
 
@@ -243,7 +242,6 @@ func getFollowing(client *github.Client, username string, page, perPage int) err
 	opt := &github.ListOptions{
 			Page:    page,
 			PerPage: perPage,
-		},
 	}
 	
 
@@ -284,7 +282,6 @@ func followUsers(client *github.Client, username string, page, perPage int) {
 	opt := &github.ListOptions{
 			Page:    page,
 			PerPage: perPage,
-		},
 	}
 	
     usrs, resp, err := client.UsersService.ListFollowing(ctx, username, opt)//to test properly whether to parse resp instead inloop
@@ -318,7 +315,6 @@ func unFollow(client *github.Client, username string, page, perPage int) {
 	opt := &github.ListOptions{
 			Page:    page,
 			PerPage: perPage,
-		},
 	}
 	
     usrs, resp, err := client.UsersService.ListFollowing(ctx, username, opt)//to test properly whether to parse resp instead inloop
