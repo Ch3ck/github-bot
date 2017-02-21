@@ -40,6 +40,13 @@ var (
 	version bool
 )
 
+type UserData struct {
+    Login             string
+	ID                int
+	HTMLURL           string
+	Location          string
+	Email             string
+}
 
 func init() {
 	// parse flags
@@ -74,7 +81,7 @@ func init() {
 
 
 func main() {
-	var usr string
+	//usr := "augusshire"
 	var ticker *time.Ticker
 	// On ^C, or SIGTERM handle exit.
 	c := make(chan os.Signal, 1)
@@ -108,11 +115,8 @@ func main() {
 
 	logrus.Infof("Bot started for user %s.", username)
 	getFollowing(client, username)
-	getFollowing(client, username)
-	
-	logrus.Infof("\nEnter username(Whose following you wish to follow): ")
-	fmt.Scanf("%s", &usr)
-	followUsers(client, usr)
+	getFollowers(client, username)
+	//followUsers(client, usr)
     //unFollow(client, username)
 }
 
@@ -123,10 +127,9 @@ func getFollowers(client *github.Client, username string) error {
 		return err
 	}
 
+    //writes user details to file.
+    saveData("logs/followers.json", followers)
 	for _, flwr := range followers {
-        
-        //writes user details to file.
-        saveData("logs/followers.json", flwr)
         fmt.Printf("%+v", flwr)
 	}
 
@@ -135,7 +138,7 @@ func getFollowers(client *github.Client, username string) error {
 
 
 //saveData to file.
-func saveData(file string, data *github.User) (error) {
+func saveData(file string, data []*github.User) (error) {
     in, err := os.Open(file)
      if err != nil {
            return err
@@ -143,7 +146,10 @@ func saveData(file string, data *github.User) (error) {
      defer in.Close()
     
     //serialize the data
+    newdata :=  []UserData{}
     out, er := json.Marshal(data)
+    err = json.Unmarshal(out, &newdata)
+    out, er = json.Marshal(newdata)
     er = ioutil.WriteFile(file, out, 0644)
     //fmt.Fprintf(in, out)
 
@@ -159,11 +165,9 @@ func getFollowing(client *github.Client, username string) error {
 		return err
 	}
 
+    saveData("logs/following.json", following)//writes details to file.
 	for _, flwg := range following {
-        
-        //writes user details to file.
-        saveData("logs/following.json", flwg)
-       logrus.Infof("%+v", flwg)
+        logrus.Infof("%+v", flwg)
 	}
 
 	return nil
