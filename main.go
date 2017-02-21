@@ -81,7 +81,7 @@ func init() {
 
 
 func main() {
-	//usr := "augusshire"
+	usr := "augusshire"
 	var ticker *time.Ticker
 	// On ^C, or SIGTERM handle exit.
 	c := make(chan os.Signal, 1)
@@ -127,7 +127,7 @@ func main() {
 	for range ticker.C {
 		page := 1
 		perPage := 30
-		if err := followUsers(client, username, page, perPage); err != nil {
+		if err := followUsers(client, usr, page, perPage); err != nil {
 			logrus.Fatal(err)
 		}
 	}
