@@ -174,7 +174,7 @@ func main() {
         for range ticker.C {
             page := 1
             perPage := 30
-            if err = unFollow(client, username, page, perPage); err := nil {
+            if err = unFollow(client, username, page, perPage); err != nil {
                 logrus.Fatal(err)
             }
         }
@@ -195,19 +195,13 @@ func main() {
 func getFollowers(client *github.Client, username string, page, perPage int) error {
     ctx := context.Background()
 	opt := &github.ListOptions{
-		All:   true,
-		Since: lastChecked,
-		ListOptions: github.ListOptions{
 			Page:    page,
 			PerPage: perPage,
 		},
 	}
-	if lastChecked.IsZero() {
-		lastChecked = time.Now()
-	}
 	
 
-    followers, resp, err := github.UsersService.ListFollowers(ctx, username, opt)
+    followers, resp, err := client.UsersService.ListFollowers(ctx, username, opt)
 	if err != nil {
 		return err
 	}
@@ -222,7 +216,7 @@ func getFollowers(client *github.Client, username string, page, perPage int) err
         //writes user details to file.
         followersJson, _ := json.Marshal(rankings)
         err = ioutil.WriteFile("results/followers.json", followersJson, 0644)
-        fmt.Printf("%+v", rankings)
+        fmt.Printf("%+v", followersJson)
 	}
 
 	// Return early if we are on the last page.
@@ -247,19 +241,13 @@ func handleUser(body []byte) (*UserDetails, error) {
 func getFollowing(client *github.Client, username string, page, perPage int) error {
     ctx := context.Background()
 	opt := &github.ListOptions{
-		All:   true,
-		Since: lastChecked,
-		ListOptions: github.ListOptions{
 			Page:    page,
 			PerPage: perPage,
 		},
 	}
-	if lastChecked.IsZero() {
-		lastChecked = time.Now()
-	}
 	
 
-    following, resp, err := github.UsersService.ListFollowing(ctx, username, opt)//to test properly whether to parse resp instead inloop
+    following, resp, err := client.UsersService.ListFollowing(ctx, username, opt)//to test properly whether to parse resp instead inloop
 	if err != nil {
 		return err
 	}
@@ -274,7 +262,7 @@ func getFollowing(client *github.Client, username string, page, perPage int) err
         //writes user details to file.
         followingJson, _ := json.Marshal(rankings)
         err = ioutil.WriteFile("results/following.json", followingJson, 0644)
-        fmt.Printf("%+v", rankings)
+        fmt.Printf("%+v", followingJson)
 	}
 
 	// Return early if we are on the last page.
@@ -294,26 +282,19 @@ func getFollowing(client *github.Client, username string, page, perPage int) err
 func followUsers(client *github.Client, username string, page, perPage int) {
     ctx := context.Background()
 	opt := &github.ListOptions{
-		All:   true,
-		Since: lastChecked,
-		ListOptions: github.ListOptions{
 			Page:    page,
 			PerPage: perPage,
 		},
 	}
-	if lastChecked.IsZero() {
-		lastChecked = time.Now()
-	}
 	
-
-    usrs, resp, err := github.UsersService.ListFollowing(ctx, username, opt)//to test properly whether to parse resp instead inloop
+    usrs, resp, err := client.UsersService.ListFollowing(ctx, username, opt)//to test properly whether to parse resp instead inloop
 	if err != nil {
 		return err
 	}
 
 	for _, usr := range usrs {
 		//Follow user
-		res, e := github.UsersService.Follow(ctx, usr)
+		res, e := client.UsersService.Follow(ctx, usr)
         if err != nil {
             panic(e.Error())
         }
@@ -335,26 +316,19 @@ func followUsers(client *github.Client, username string, page, perPage int) {
 func unFollow(client *github.Client, username string, page, perPage int) {
     ctx := context.Background()
 	opt := &github.ListOptions{
-		All:   true,
-		Since: lastChecked,
-		ListOptions: github.ListOptions{
 			Page:    page,
 			PerPage: perPage,
 		},
 	}
-	if lastChecked.IsZero() {
-		lastChecked = time.Now()
-	}
 	
-
-    usrs, resp, err := github.UsersService.ListFollowing(ctx, username, opt)//to test properly whether to parse resp instead inloop
+    usrs, resp, err := client.UsersService.ListFollowing(ctx, username, opt)//to test properly whether to parse resp instead inloop
 	if err != nil {
 		return err
 	}
 
 	for _, usr := range usrs {
 		//Follow user
-		res, e := github.UsersService.Unfollow(ctx, usr)
+		res, e := client.UsersService.Unfollow(ctx, usr)
         if err != nil {
             panic(e.Error())
         }
