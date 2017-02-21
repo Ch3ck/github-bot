@@ -9,7 +9,6 @@ package main
 import (
 
 	"context"
-	"encoding/json"
 	"flag"
 	"fmt"
 	"os"
@@ -206,15 +205,10 @@ func getFollowers(client *github.Client, username string, page, perPage int) err
 	}
 
 	for _, flwr := range followers {
-		// handle follower details.
-		user, e := handleUser(flwr)
-        if err != nil {
-            panic(err.Error())
-        }
         
         //writes user details to file.
-        saveData("results/followers.txt", user)
-        fmt.Printf("%+v", user)
+        saveData("results/followers.txt", flwr)
+        fmt.Printf("%+v", flwr)
 	}
 
 	// Return early if we are on the last page.
@@ -226,26 +220,18 @@ func getFollowers(client *github.Client, username string, page, perPage int) err
 	return getFollowers(client, username, page, perPage)
 }
 
-func handleUser(body []byte) (*UserDetails, error) {
-    var s = new(UserDetails)
-    err := json.Unmarshal(body, &s)
-    if(err != nil){
-        fmt.Println("whoops:", err)
-    }
-    return s, err
-}
 
 //saveData to file.
-func saveData(file, data string) (string, error) {
+func saveData(file string, data *github.User) (error) {
         var val string
         in, err := os.Open(file)
         if err != nil {
-            return "", err
+            return err
         }
         defer in.Close()
 
-        _, err = fmt.Fprintf(in, "%s", &data)
-        return 1, err
+        _, err = fmt.Fprintf(in, "%v", &data)
+        return err
      }
 
 // getFollowing iterates over the list of following and writes to file.
@@ -263,11 +249,6 @@ func getFollowing(client *github.Client, username string, page, perPage int) err
 	}
 
 	for _, flwg := range following {
-		// handle following details.
-		user, e := handleUser(flwg)
-        if err != nil {
-            panic(err.Error())
-        }
         
         //writes user details to file.
         saveData("results/following.txt", flwg)
@@ -280,7 +261,7 @@ func getFollowing(client *github.Client, username string, page, perPage int) err
 	}
 
 	page = resp.NextPage
-	return getfollowing(client, username, page, perPage)
+	return getFollowing(client, username, page, perPage)
 
 
 	return nil
@@ -288,21 +269,21 @@ func getFollowing(client *github.Client, username string, page, perPage int) err
 
 // followUsers, gets the list of followers for a particular user and followers them on GitHub.
 // This requires authentication with the API.
-func followUsers(client *github.Client, username string, page, perPage int) {
+func followUsers(client *github.Client, username string, page, perPage int) error {
     ctx := context.Background()
 	opt := &github.ListOptions{
 			Page:    page,
 			PerPage: perPage,
 	}
 	
-    usrs, resp, err := client.Users.ListFollowing(ctx, username, opt)//to test properly whether to parse resp instead inloop
+    usrs, resp, err := client.Users.ListFollowing(ctx, username, opt) //to test properly whether to parse resp instead inloop
 	if err != nil {
 		return err
 	}
 
 	for _, usr := range usrs {
 		//Follow user
-		res, e := client.Users.Follow(ctx, usr)
+		res, e := client.Users.Follow(ctx, *usr.Login)
         if err != nil {
             panic(e.Error())
         }
@@ -321,7 +302,7 @@ func followUsers(client *github.Client, username string, page, perPage int) {
 
 
 // Unfollow all GitHub users on one's follower list.
-func unFollow(client *github.Client, username string, page, perPage int) {
+func unFollow(client *github.Client, username string, page, perPage int) error {
     ctx := context.Background()
 	opt := &github.ListOptions{
 			Page:    page,
@@ -335,7 +316,7 @@ func unFollow(client *github.Client, username string, page, perPage int) {
 
 	for _, usr := range usrs {
 		//Follow user
-		res, e := client.Users.Unfollow(ctx, usr)
+		res, e := client.Users.Unfollow(ctx, *usr.Login)
         if err != nil {
             panic(e.Error())
         }
@@ -349,7 +330,7 @@ func unFollow(client *github.Client, username string, page, perPage int) {
 	}
 
 	page = resp.NextPage
-	return Unfollow(client, username, page, perPage)
+	return unFollow(client, username, page, perPage)
 }
 
 
