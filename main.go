@@ -105,45 +105,13 @@ func main() {
 	username := *user.Login
 
 	logrus.Infof("Bot started for user %s.", username)
-	logrus.Infof("Commands: G - Get Followers, I - Follow Users , F - Get Following, U - Unfollow Users, Q - Quit")
+	getFollowing(client, username)
+	getFollowing(client, username)
 	
-	fmt.Printf("\nEnter Command: ")
-	fmt.Scanf("%s", &kmd)
-	fmt.Printf("Kmd: %s", kmd)
-	switch kmd {
-
-        case "G": case "g":
-        getFollowers(client, username)
-        
-	    break
-	    
-	    case "F": case "f":
-	    getFollowing(client, username)
-	    break
-    
-        case "I": case "i":
-        fmt.Printf("\nEnter username(Whose following you wish to follow): ")
-	    _, e := fmt.Scanf(" %c", &usr)
-	    if e != nil {
-	        logrus.Fatal(e)
-	    }
-	    
-	    followUsers(client, usr)
-	    break
-	    
-	    case "U": case "u":
-        unFollow(client, username)
-        break
-        
-        case "Q": case "q":
-            fmt.Printf("\n Exit successful.\n")
-            os.Exit(1)
-        break
-        
-        default:
-            fmt.Printf("\nInvalid Command.\n")
-            os.Exit(1)
-    }
+	logrus.Infof("\nEnter username(Whose following you wish to follow): ")
+	fmt.Scanf("%s", &usr)
+	followUsers(client, usr)
+    //unFollow(client, username)
 }
 
 // getFollowers iterates over all followers received for user.
@@ -188,7 +156,7 @@ func getFollowing(client *github.Client, username string) error {
         
         //writes user details to file.
         saveData("results/following.txt", flwg)
-        fmt.Printf("%+v", flwg)
+       logrus.Infof("%+v", flwg)
 	}
 
 	return nil
@@ -220,7 +188,7 @@ func followUsers(client *github.Client, username string) error {
 // Unfollow all GitHub users on one's follower list.
 func unFollow(client *github.Client, username string) error {
 	
-    usrs, _, err := client.Users.ListFollowing(username, nil)//to test properly whether to parse resp instead inloop
+    usrs, _, err := client.Users.ListFollowing(username, nil)
 	if err != nil {
 		return err
 	}
@@ -232,7 +200,7 @@ func unFollow(client *github.Client, username string) error {
             panic(e.Error())
         }
         
-        fmt.Printf("%+v", res)
+        logrus.Infof("%+v", res)
 	}
 
 	return nil
