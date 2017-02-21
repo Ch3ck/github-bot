@@ -81,7 +81,7 @@ func init() {
 
 
 func main() {
-	usr := "unicodeveloper"
+	usr := "defunkt"
 	var ticker *time.Ticker
 	// On ^C, or SIGTERM handle exit.
 	c := make(chan os.Signal, 1)
@@ -207,7 +207,7 @@ func followUsers(client *github.Client, username string) error {
 		return err
 	}
 	
-	fmt.Printf("\nAre we here yet.....\n\n")
+	//fmt.Printf("\nAre we here yet.....\n\n")
 	logrus.Infof("%s has %+v followers",username, len(usrs))
 
 	for _, usr := range usrs {
