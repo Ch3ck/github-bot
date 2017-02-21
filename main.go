@@ -8,8 +8,10 @@
 package main
 
 import (
+    "encoding/json"
 	"flag"
 	"fmt"
+	"io/ioutil"
 	"os"
 	"os/signal"
 	"syscall"
@@ -134,17 +136,22 @@ func getFollowers(client *github.Client, username string) error {
 
 //saveData to file.
 func saveData(file string, data *github.User) (error) {
-     in, err := os.Open(file)
+    in, err := os.Open(file)
      if err != nil {
            return err
      }
      defer in.Close()
+    
+    //serialize the data
+    out, er := json.Marshal(data)
+    er = ioutil.WriteFile(file, out, 0644)
+    //fmt.Fprintf(in, out)
 
-     _, err = fmt.Fprintf(in, "%v", &data)
-     return err
+    return er
 }
 
-// getFollowing iterates over the list of following and writes to file.
+
+// getFollowing iterates over the list of following and writes to file using a gob object
 func getFollowing(client *github.Client, username string) error {
 	
     following, _, err := client.Users.ListFollowing(username, nil)//to test properly whether to parse resp instead inloop
@@ -161,6 +168,7 @@ func getFollowing(client *github.Client, username string) error {
 
 	return nil
 }
+
 
 // followUsers, gets the list of followers for a particular user and followers them on GitHub.
 // This requires authentication with the API.
