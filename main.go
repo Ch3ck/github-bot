@@ -223,16 +223,15 @@ func getFollowers(client *github.Client, username string, page, perPage int) err
 
 //saveData to file.
 func saveData(file string, data *github.User) (error) {
-        var val string
-        in, err := os.Open(file)
-        if err != nil {
-            return err
-        }
-        defer in.Close()
-
-        _, err = fmt.Fprintf(in, "%v", &data)
-        return err
+     in, err := os.Open(file)
+     if err != nil {
+           return err
      }
+     defer in.Close()
+
+     _, err = fmt.Fprintf(in, "%v", &data)
+     return err
+}
 
 // getFollowing iterates over the list of following and writes to file.
 func getFollowing(client *github.Client, username string, page, perPage int) error {
