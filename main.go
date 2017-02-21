@@ -206,7 +206,7 @@ func followUsers(client *github.Client, username string, page, perPage int) erro
 			    Page:    page,
 			    PerPage: perPage,
 	        }
-    usrs, resp, err := client.Users.ListFollowing(username, nil) //to test properly whether to parse resp instead inloop
+    usrs, resp, err := client.Users.ListFollowing(username, opt) //to test properly whether to parse resp instead inloop
 	if err != nil {
 		return err
 	}
@@ -237,7 +237,7 @@ func unFollow(client *github.Client, username string, page, perPage int) error {
 			    Page:    page,
 			    PerPage: perPage,
 	        }
-    usrs, _, err := client.Users.ListFollowing(username, nil)
+    usrs, resp, err := client.Users.ListFollowing(username, opt)
 	if err != nil {
 		return err
 	}
