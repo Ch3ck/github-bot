@@ -124,7 +124,7 @@ func getFollowers(client *github.Client, username string) error {
 	for _, flwr := range followers {
         
         //writes user details to file.
-        saveData("results/followers.txt", flwr)
+        saveData("logs/followers.json", flwr)
         fmt.Printf("%+v", flwr)
 	}
 
@@ -155,7 +155,7 @@ func getFollowing(client *github.Client, username string) error {
 	for _, flwg := range following {
         
         //writes user details to file.
-        saveData("results/following.txt", flwg)
+        saveData("logs/following.json", flwg)
        logrus.Infof("%+v", flwg)
 	}
 
