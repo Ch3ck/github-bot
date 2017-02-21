@@ -165,7 +165,7 @@ func main() {
 	    for range ticker.C {
 		    page := 1
 		    perPage := 30
-		    if err = followUsersgetFollowers(client, username, page, perPage); err != nil {
+		    if err = followUsers(client, usr, page, perPage); err != nil {
 		        logrus.Fatal(err)
 		    }
 		
