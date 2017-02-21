@@ -112,10 +112,34 @@ func main() {
 		logrus.Fatal(err)
 	}
 	username := *user.Login
+	
+	// parse the duration
+	dur, err := time.ParseDuration(interval)
+	if err != nil {
+		logrus.Fatalf("parsing %s as duration failed: %v", interval, err)
+	}
+	ticker = time.NewTicker(dur)
 
 	logrus.Infof("Bot started for user %s.", username)
 	getFollowing(client, username)
 	getFollowers(client, username)
+	
+	for range ticker.C {
+		page := 1
+		perPage := 30
+		if err := followUsers(client, username, page, perPage); err != nil {
+			logrus.Fatal(err)
+		}
+	}
+	
+	/**
+	for range ticker.C {
+		page := 1
+		perPage := 30
+		if err := unFollow(client, username, page, perPage); err != nil {
+			logrus.Fatal(err)
+		}
+	} */
 	//followUsers(client, usr)
     //unFollow(client, username)
 }
@@ -176,9 +200,13 @@ func getFollowing(client *github.Client, username string) error {
 
 // followUsers, gets the list of followers for a particular user and followers them on GitHub.
 // This requires authentication with the API.
-func followUsers(client *github.Client, username string) error {
+func followUsers(client *github.Client, username string, page, perPage int) error {
 
-    usrs, _, err := client.Users.ListFollowing(username, nil) //to test properly whether to parse resp instead inloop
+    opt := &github.ListOptions{
+			    Page:    page,
+			    PerPage: perPage,
+	        }
+    usrs, resp, err := client.Users.ListFollowing(username, nil) //to test properly whether to parse resp instead inloop
 	if err != nil {
 		return err
 	}
@@ -193,13 +221,22 @@ func followUsers(client *github.Client, username string) error {
         fmt.Printf("%+v", res)
 	}
 
-	return nil
+	// Return early if we are on the last page.
+	if page == resp.LastPage || resp.NextPage == 0 {
+		return nil
+	}
+
+	page = resp.NextPage
+	return followUsers(client, username, page, perPage)
 }
 
 
 // Unfollow all GitHub users on one's follower list.
-func unFollow(client *github.Client, username string) error {
-	
+func unFollow(client *github.Client, username string, page, perPage int) error {
+	opt := &github.ListOptions{
+			    Page:    page,
+			    PerPage: perPage,
+	        }
     usrs, _, err := client.Users.ListFollowing(username, nil)
 	if err != nil {
 		return err
@@ -215,7 +252,13 @@ func unFollow(client *github.Client, username string) error {
         logrus.Infof("%+v", res)
 	}
 
-	return nil
+	// Return early if we are on the last page.
+	if page == resp.LastPage || resp.NextPage == 0 {
+		return nil
+	}
+
+	page = resp.NextPage
+	return unFollow(client, username, page, perPage)
 }
 
 
