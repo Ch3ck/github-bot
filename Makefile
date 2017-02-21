@@ -12,6 +12,7 @@ all: clean build fmt lint test vet install
 build:
 	@echo "+ $@"
 	@go build -tags "$(BUILDTAGS) cgo" .
+	@docker build -t github-bot .
 
 static:
 	@echo "+ $@"
