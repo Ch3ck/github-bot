@@ -261,9 +261,6 @@ func getFollowing(client *github.Client, username string, page, perPage int) err
 
 	page = resp.NextPage
 	return getFollowing(client, username, page, perPage)
-
-
-	return nil
 }
 
 // followUsers, gets the list of followers for a particular user and followers them on GitHub.
