@@ -8,15 +8,12 @@ package main
 
 import (
 
-    "bufio"
 	"context"
 	"encoding/json"
 	"flag"
 	"fmt"
 	"os"
 	"os/signal"
-	"strconv"
-	"strings"
 	"syscall"
 	"time"
 
@@ -85,6 +82,7 @@ func init() {
 func main() {
 	var ticker *time.Ticker
 	var kmd, usr string
+	ctx := context.Background()
 	
 	// On ^C, or SIGTERM handle exit.
 	c := make(chan os.Signal, 1)
@@ -110,7 +108,7 @@ func main() {
 
 	// Get the authenticated user, the empty string being passed let's the GitHub
 	// API know we want ourself.
-	user, _, err := client.Users.Get("")
+	user, _, err := client.Users.Get(ctx,"")
 	if err != nil {
 		logrus.Fatal(err)
 	}
@@ -176,7 +174,7 @@ func main() {
         for range ticker.C {
             page := 1
             perPage := 30
-            if err := Unfollow(client, username, page, perPage); err := nil {
+            if err = unFollow(client, username, page, perPage); err := nil {
                 logrus.Fatal(err)
             }
         }
@@ -334,7 +332,7 @@ func followUsers(client *github.Client, username string, page, perPage int) {
 
 
 // Unfollow all GitHub users on one's follower list.
-func Unfollow(client *github.Client, username string, page, perPage int) {
+func unFollow(client *github.Client, username string, page, perPage int) {
     ctx := context.Background()
 	opt := &github.ListOptions{
 		All:   true,
