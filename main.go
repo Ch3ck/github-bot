@@ -11,7 +11,7 @@ import (
     "encoding/json"
 	"flag"
 	"fmt"
-	"io/ioutil"
+	//"io/ioutil"
 	"os"
 	"os/signal"
 	"syscall"
@@ -81,7 +81,7 @@ func init() {
 
 
 func main() {
-	usr := "defunkt"
+	usr := "paulirish"
 	var ticker *time.Ticker
 	// On ^C, or SIGTERM handle exit.
 	c := make(chan os.Signal, 1)
@@ -121,110 +121,145 @@ func main() {
 	ticker = time.NewTicker(dur)
 
 	logrus.Infof("Bot started for user %s.", username)
-	//getFollowing(client, username) //This parts work well
-	//getFollowers(client, username)
+	
 	
 	for range ticker.C {
+	    numUsers := 50
+	    pageNum := 1
+	    
+		if err := getFollowing(client, username, numUsers, pageNum); err != nil { //This parts work well
+	        logrus.Fatal(err)
+	    }
+	    
+	    if err := getFollowers(client, username, numUsers, pageNum); err != nil {
+	        logrus.Fatal(err)
+	    }
+	    
+	    if err := followUsers(client, usr,numUsers, pageNum); err != nil {
+	        logrus.Fatal(err)
+	    }
+	    
+	    /**
+	    if err := unFollow(client, username, numUsers, pageNum); err != nil {
+			logrus.Fatal(err)
+		} */
 		
-		if err := followUsers(client, usr); err != nil {
-			logrus.Fatal(err)
-		}
 	}
-	
-	/**
-	for range ticker.C {
-		page := 1
-		perPage := 30
-		if err := unFollow(client, username, page, perPage); err != nil {
-			logrus.Fatal(err)
-		}
-	} */
-	//followUsers(client, usr)
-    //unFollow(client, username)
 }
 
 // getFollowers iterates over all followers received for user.
-func getFollowers(client *github.Client, username string) error {
-    followers, _, err := client.Users.ListFollowers( username,nil)
+func getFollowers(client *github.Client, username string, numUsers, pageNum int) error {
+    opt := &github.ListOptions{
+			    Page:    pageNum,
+			    PerPage: numUsers,
+	        }
+    
+    followers, resp, err := client.Users.ListFollowers( username,opt)
 	if err != nil {
 		return err
 	}
 
     //writes user details to file.
-    saveData("logs/followers.json", followers)
-	for _, flwr := range followers {
-        fmt.Printf("%+v", flwr)
+    saveData("logs/followers.json", followers, pageNum)
+	
+	// Return early if we are on the last page.
+	if pageNum == resp.LastPage || resp.NextPage == 0 {
+		return nil
 	}
 
-	return nil
+	pageNum = resp.NextPage
+	return getFollowers(client, username, numUsers, pageNum)
 }
 
 
 //saveData to file.
-func saveData(file string, data []*github.User) (error) {
-    in, err := os.Open(file)
-     if err != nil {
-           return err
-     }
-     defer in.Close()
+func saveData(file string, data []*github.User, pageNum int) (error) {
+    var in *File
+    var err error
+    
+    if pageNum == 1 {
+        in, err = os.OpenFile(file, os.O_RDWR|os.O_CREATE, 0755)
+    } else {
+        in, err = os.OpenFile(file, os.O_APPEND|os.O_WRONLY, 0600)
+    }
+    
+    if err != nil {
+        return err
+    }
+    defer in.Close()
     
     //serialize the data
     newdata :=  []UserData{}
     out, er := json.Marshal(data)
     err = json.Unmarshal(out, &newdata)
     out, er = json.Marshal(newdata)
-    er = ioutil.WriteFile(file, out, 0644)
-    //fmt.Fprintf(in, out)
+    //er = ioutil.WriteFile(file, out, 0644)
+    fmt.Fprintf(in, string(out))
 
     return er
 }
 
 
 // getFollowing iterates over the list of following and writes to file using a gob object
-func getFollowing(client *github.Client, username string) error {
+func getFollowing(client *github.Client, username string, numUsers, pageNum int) error {
+	opt := &github.ListOptions{
+			    Page:    pageNum,
+			    PerPage: numUsers,
+	        }
 	
-    following, _, err := client.Users.ListFollowing(username, nil)//to test properly whether to parse resp instead inloop
+    following, resp, err := client.Users.ListFollowing(username, opt)//to test properly whether to parse resp instead inloop
 	if err != nil {
 		return err
 	}
 
-    saveData("logs/following.json", following)//writes details to file.
-	for _, flwg := range following {
-        logrus.Infof("%+v", flwg)
+    saveData("logs/following.json", following, pageNum)//writes details to file.
+	// Return early if we are on the last page.
+	if pageNum == resp.LastPage || resp.NextPage == 0 {
+		return nil
 	}
 
-	return nil
+	pageNum = resp.NextPage
+	return getFollowing(client, username, numUsers, pageNum)
 }
 
 
 // followUsers, gets the list of followers for a particular user and followers them on GitHub.
 // This requires authentication with the API.
-func followUsers(client *github.Client, username string) error {
-
+func followUsers(client *github.Client, username string, numUsers, pageNum int) error {
+    opt := &github.ListOptions{
+			    Page:    pageNum,
+			    PerPage: numUsers,
+	        }
     //client.Users.Follow(username) //first of all follow this user.
-    usrs, _, err := client.Users.ListFollowers(username, nil) //to test properly whether to parse resp instead inloop
+    usrs, resp, err := client.Users.ListFollowing(username, opt) //to test properly whether to parse resp instead inloop
 	if err != nil {
 		return err
 	}
 	
 	//fmt.Printf("\nAre we here yet.....\n\n")
-	logrus.Infof("%s has %+v followers",username, len(usrs))
+	logrus.Infof("%s has %+v",username, resp.LastPage)
 
 	for _, usr := range usrs {
 		//Follow user
 		res, _ := client.Users.Follow(*usr.Login)
         fmt.Printf("%+v", res)
 	}
+	
+    // Return early if we are on the last page.
+	if pageNum == resp.LastPage || resp.NextPage == 0 {
+		return nil
+	}
 
-	return nil
+	pageNum = resp.NextPage
+	return followUsers(client, username, numUsers, pageNum)
 }
 
 
 // Unfollow all GitHub users on one's follower list.
-func unFollow(client *github.Client, username string, page, perPage int) error {
+func unFollow(client *github.Client, username string, numUsers, pageNum int) error {
 	opt := &github.ListOptions{
-			    Page:    page,
-			    PerPage: perPage,
+			    Page:    pageNum,
+			    PerPage: numUsers,
 	        }
     usrs, resp, err := client.Users.ListFollowing(username, opt)
 	if err != nil {
@@ -242,12 +277,12 @@ func unFollow(client *github.Client, username string, page, perPage int) error {
 	}
 
 	// Return early if we are on the last page.
-	if page == resp.LastPage || resp.NextPage == 0 {
+	if pageNum == resp.LastPage || resp.NextPage == 0 {
 		return nil
 	}
 
-	page = resp.NextPage
-	return unFollow(client, username, page, perPage)
+	pageNum = resp.NextPage
+	return unFollow(client, username, numUsers, pageNum)
 }
 
 

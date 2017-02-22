@@ -24,6 +24,9 @@ $ make
 ```
 
 ## Usage
+
+Create a `GitHub` token which you will use in your application.
+
 ```
 $ github-bot -h
 github-bot - v1.0
