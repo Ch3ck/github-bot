@@ -11,7 +11,7 @@ import (
     "encoding/json"
 	"flag"
 	"fmt"
-	//"io/ioutil"
+	"io/ioutil"
 	"os"
 	"os/signal"
 	"syscall"
@@ -194,8 +194,8 @@ func saveData(file string, data []*github.User, pageNum int) (error) {
     out, er := json.Marshal(data)
     err = json.Unmarshal(out, &newdata)
     out, er = json.Marshal(newdata)
-    //er = ioutil.WriteFile(file, out, 0644)
-    fmt.Fprintf(in, string(out))
+    er = ioutil.WriteFile(file, out, 0644)
+    //fmt.Fprintf(in, string(out))
 
     return er
 }
@@ -238,7 +238,7 @@ func followUsers(client *github.Client, username string, numUsers, pageNum int) 
 	}
 	
 	//fmt.Printf("\nAre we here yet.....\n\n")
-	logrus.Infof("%s has %+v",username, resp.LastPage)
+	logrus.Infof("%s has %+v, Curr: %+v",username, resp.LastPage, pageNum)
 
 	for _, usr := range usrs {
 		//Follow user
