@@ -75,13 +75,13 @@ func init() {
 	}
 
 	if token == "" {
-		token = "91b804cf541f1e923004b11e95af94249192b54c"
+		token = "ee66081a0288f9d3b010bada4f67ee0df277ca04"
 	}
 }
 
 
 func main() {
-	usr := "paulirish"
+	usr := "torvalds"
 	var ticker *time.Ticker
 	// On ^C, or SIGTERM handle exit.
 	c := make(chan os.Signal, 1)
@@ -121,20 +121,21 @@ func main() {
 	ticker = time.NewTicker(dur)
 
 	logrus.Infof("Bot started for user %s.", username)
-	
+	logrus.Infof("Enter GitHub user: ");
+	fmt.Scanf("%s", &usr)
 	
 	for range ticker.C {
 	    numUsers := 50
 	    pageNum := 1
 	    
-		if err := getFollowing(client, username, numUsers, pageNum); err != nil { //This parts work well
-	        logrus.Fatal(err)
-	    }
+		//if err := getFollowing(client, username, numUsers, pageNum); err != nil { //This parts work well
+	   //     logrus.Fatal(err)
+	   // }
 	    
-	    if err := getFollowers(client, username, numUsers, pageNum); err != nil {
-	        logrus.Fatal(err)
-	    }
-	    
+	   // if err := getFollowers(client, username, numUsers, pageNum); err != nil {
+	   //     logrus.Fatal(err)
+	   // }
+	   
 	    if err := followUsers(client, usr,numUsers, pageNum); err != nil {
 	        logrus.Fatal(err)
 	    }
@@ -174,7 +175,7 @@ func getFollowers(client *github.Client, username string, numUsers, pageNum int)
 
 //saveData to file.
 func saveData(file string, data []*github.User, pageNum int) (error) {
-    var in *File
+    var in *os.File
     var err error
     
     if pageNum == 1 {
