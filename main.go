@@ -121,8 +121,8 @@ func main() {
 	ticker = time.NewTicker(dur)
 
 	logrus.Infof("Bot started for user %s.", username)
-	logrus.Infof("Enter GitHub user: ");
-	fmt.Scanf("%s", &usr)
+	//logrus.Infof("Enter GitHub user: ");
+	//fmt.Scanf("%s", &usr)
 	
 	for range ticker.C {
 	    numUsers := 50
@@ -136,14 +136,16 @@ func main() {
 	   //     logrus.Fatal(err)
 	   // }
 	   
-	    if err := followUsers(client, usr,numUsers, pageNum); err != nil {
-	        logrus.Fatal(err)
-	    }
+	   // if err := followUsers(client, usr,numUsers, pageNum); err != nil {
+	   //     logrus.Fatal(err)
+	   // }
 	    
 	    /**
+	     * Add this program to the cron jobs so it's executed every hour.
+	     */
 	    if err := unFollow(client, username, numUsers, pageNum); err != nil {
 			logrus.Fatal(err)
-		} */
+		}
 		
 	}
 }
@@ -262,6 +264,7 @@ func unFollow(client *github.Client, username string, numUsers, pageNum int) err
 			    Page:    pageNum,
 			    PerPage: numUsers,
 	        }
+	
     usrs, resp, err := client.Users.ListFollowing(username, opt)
 	if err != nil {
 		return err
