@@ -126,7 +126,7 @@ func main() {
 	
 	for range ticker.C {
 	    numUsers := 50
-	    pageNum := 1
+	    pageNum := 2
 	    
 		//if err := getFollowing(client, username, numUsers, pageNum); err != nil { //This parts work well
 	   //     logrus.Fatal(err)
