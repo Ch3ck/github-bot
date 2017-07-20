@@ -153,7 +153,7 @@ func main() {
 }
 
 // getFollowers iterates over all followers received for user.
-func getFollowers(ct context.Context, client *github.Client, username string, numUsers, pageNum int) error {
+func getFollowers(ctx context.Context, client *github.Client, username string, numUsers, pageNum int) error {
     opt := &github.ListOptions{
 			    Page:    pageNum,
 			    PerPage: numUsers,
@@ -230,7 +230,7 @@ func getFollowing(ctx context.Context, client *github.Client, username string, n
 
 // followUsers, gets the list of followers for a particular user and followers them on GitHub.
 // This requires authentication with the API.
-func followUsers(context context.Context, client *github.Client, username string, numUsers, pageNum int) error {
+func followUsers(ctx context.Context, client *github.Client, username string, numUsers, pageNum int) error {
     opt := &github.ListOptions{
 			    Page:    pageNum,
 			    PerPage: numUsers,
