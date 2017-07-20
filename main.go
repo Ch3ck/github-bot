@@ -8,7 +8,8 @@
 package main
 
 import (
-    "encoding/json"
+	"context"
+    	"encoding/json"
 	"flag"
 	"fmt"
 	"io/ioutil"
@@ -104,10 +105,11 @@ func main() {
 	// Create the github client.
 	client := github.NewClient(tc)
 	
+	ctx := context.Background()
 
 	// Get the authenticated user, the empty string being passed let's the GitHub
 	// API know we want ourself.
-	user, _, err := client.Users.Get("")
+	user, _, err := client.Users.Get(ctx, "")
 	if err != nil {
 		logrus.Fatal(err)
 	}
@@ -157,7 +159,7 @@ func getFollowers(client *github.Client, username string, numUsers, pageNum int)
 			    PerPage: numUsers,
 	        }
     
-    followers, resp, err := client.Users.ListFollowers( username,opt)
+    followers, resp, err := client.Users.ListFollowers(ctx, username,opt)
 	if err != nil {
 		return err
 	}
@@ -210,7 +212,7 @@ func getFollowing(client *github.Client, username string, numUsers, pageNum int)
 			    PerPage: numUsers,
 	        }
 	
-    following, resp, err := client.Users.ListFollowing(username, opt)//to test properly whether to parse resp instead inloop
+    following, resp, err := client.Users.ListFollowing(ctx, username, opt)//to test properly whether to parse resp instead inloop
 	if err != nil {
 		return err
 	}
@@ -234,7 +236,7 @@ func followUsers(client *github.Client, username string, numUsers, pageNum int) 
 			    PerPage: numUsers,
 	        }
     //client.Users.Follow(username) //first of all follow this user.
-    usrs, resp, err := client.Users.ListFollowing(username, opt) //to test properly whether to parse resp instead inloop
+    usrs, resp, err := client.Users.ListFollowing(ctx, username, opt) //to test properly whether to parse resp instead inloop
 	if err != nil {
 		return err
 	}
@@ -244,7 +246,7 @@ func followUsers(client *github.Client, username string, numUsers, pageNum int) 
 
 	for _, usr := range usrs {
 		//Follow user
-		res, _ := client.Users.Follow(*usr.Login)
+		res, _ := client.Users.Follow(ctx, *usr.Login)
         fmt.Printf("%+v", res)
 	}
 	
@@ -265,14 +267,14 @@ func unFollow(client *github.Client, username string, numUsers, pageNum int) err
 			    PerPage: numUsers,
 	        }
 	
-    usrs, resp, err := client.Users.ListFollowing(username, opt)
+    usrs, resp, err := client.Users.ListFollowing(ctx, username, opt)
 	if err != nil {
 		return err
 	}
 
 	for _, usr := range usrs {
 		//Follow user
-		res, e := client.Users.Unfollow(*usr.Login)
+		res, e := client.Users.Unfollow(ctx, *usr.Login)
         if err != nil {
             panic(e.Error())
         }
