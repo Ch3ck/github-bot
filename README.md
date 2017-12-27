@@ -1,10 +1,10 @@
 GitHub-Bot
 ==========
-GitHub-Bot was created and maintained by [Nyah Check](https://github.com/Ch3ck), and it's at GitHub bot to print the following and followers of any GitHub user. It follows the followers of any user and can unfollow all your following. The following is done by providing any user's following list and while authenticating with the GitHub API followers users based on that list. It uses the [Go-GitHub](github.com/google/go-github/github) library to authenticate with the GitHub API and was inspired by [Jessica Frazelle](https://github.com/jessfraz)'s [ghb0t](https://github.com/jessfraz/ghb0t).
+GitHub-Bot was created and maintained by [Nyah Check](https://github.com/Ch3ck), and it's a GitHub bot to follow users on GitHub. It works by taken a user token for any GitHub user, retrieves the list of it's followers and follows them. You can modify the code however to unfollow everyone you follow on GitHub. It uses [Go-GitHub](github.com/google/go-github/github) library to authenticate with the GitHub API and was inspired by [Jessica Frazelle](https://github.com/jessfraz)'s [ghb0t](https://github.com/jessfraz/ghb0t).
 
 ## Installation
 
-* [Go version 1.7](https://github.com/golang/go/releases/tag/go1.7.3)
+* [Go version 1.8](https://github.com/golang/go/releases/tag/go1.8.3)
 
 Clone Git repo:
 
@@ -35,6 +35,8 @@ github-bot - v1.0
         seconds to wait before checking for new events (default 30)
   -token string
         GitHub API token
+  -user string
+  		GitHub username
   -v    print version and exit (shorthand)
   -version
         print version and exit
