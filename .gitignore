@@ -3,6 +3,9 @@
 *.a
 *.so
 
+#binaries
+github-bot
+
 # Folders
 _obj
 _test
