@@ -34,6 +34,7 @@ var (
 	token    string
 	interval string
     kmd      string
+    usr		 string
 	lastChecked time.Time
     
 	debug   bool
@@ -51,6 +52,7 @@ type UserData struct {
 func init() {
 	// parse flags
 	flag.StringVar(&token, "token", "", "GitHub API token")
+	flag.StringVar(&usr, "user", "", "GitHub user(Must have many followers)")
 	flag.StringVar(&interval, "interval", "30s", "check interval (ex. 5ms, 10s, 1m, 3h)")
 
 	flag.BoolVar(&version, "version", false, "print version and exit")
@@ -77,11 +79,14 @@ func init() {
 	if token == "" {
 		token = "ee66081a0288f9d3b010bada4f67ee0df277ca04"
 	}
+	
+	if usr == "" {
+		usr = "torvalds"
+	}
 }
 
 
 func main() {
-	//usr := "torvalds"
 	var ticker *time.Ticker
 	// On ^C, or SIGTERM handle exit.
 	c := make(chan os.Signal, 1)
@@ -106,7 +111,7 @@ func main() {
 
 	// Get the authenticated user, the empty string being passed let's the GitHub
 	// API know we want ourself.
-	user, _, err := client.Users.Get("")
+	user, _, err := client.Users.Get(usr)
 	if err != nil {
 		logrus.Fatal(err)
 	}
@@ -127,24 +132,24 @@ func main() {
 	    numUsers := 50
 	    pageNum := 2
 	    
-		//if err := getFollowing(client, username, numUsers, pageNum); err != nil { //This parts work well
-	   //     logrus.Fatal(err)
-	   // }
+		if err := getFollowing(client, username, numUsers, pageNum); err != nil { //This parts work well
+	       logrus.Fatal(err)
+	   }
 	    
-	   // if err := getFollowers(client, username, numUsers, pageNum); err != nil {
-	   //     logrus.Fatal(err)
-	   // }
+	   if err := getFollowers(client, username, numUsers, pageNum); err != nil {
+	       logrus.Fatal(err)
+	   }
 	   
-	   // if err := followUsers(client, usr,numUsers, pageNum); err != nil {
-	   //     logrus.Fatal(err)
-	   // }
+	   if err := followUsers(client, usr,numUsers, pageNum); err != nil {
+	        logrus.Fatal(err)
+	   }
 	    
 	    /**
 	     * Add this program to the cron jobs so it's executed every hour.
-	     */
+	     
 	    if err := unFollow(client, username, numUsers, pageNum); err != nil {
 			logrus.Fatal(err)
-		}
+		} */
 		
 	}
 }
